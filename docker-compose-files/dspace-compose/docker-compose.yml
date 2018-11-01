@@ -15,11 +15,11 @@ services:
     stdin_open: true
 
   dspace:
-    image: "${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-6_x-jdk8-test}"
+    image: dspace/dspace:dspace-5.9
     environment:
       - DSPACE_INSTALL=/dspace
     ports:
-      - 8080:8080
+      - 8083:8080
     volumes:
       - "assetstore:/dspace/assetstore"
       - "solr:/dspace/solr"
