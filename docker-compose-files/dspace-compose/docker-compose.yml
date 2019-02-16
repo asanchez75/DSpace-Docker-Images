@@ -1,14 +1,16 @@
-version: "3.3"
+version: "3.7"
 
 services:
   dspacedb:
     image: dspace/dspace-postgres-pgcrypto
     # Note that a separate image exists for DSpace 4x
     # image: dspace/dspace-postgres-4x
+    container_name: dspacedb
     environment:
       - PGDATA=/pgdata
     volumes:
       - pgdata:/pgdata
+      - "../../add-ons/dspace-docker-tools:/dspace-docker-tools"
     networks:
       - dspacenet
     tty: true
@@ -16,15 +18,20 @@ services:
 
   dspace:
     image: "${DOCKER_OWNER:-dspace}/dspace:${DSPACE_VER:-dspace-6_x-jdk8-test}"
+    container_name: dspace
     environment:
       - DSPACE_INSTALL=/dspace
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-test@test.edu}
+      - ADMIN_PASS=${ADMIN_PASS:-admin}
+      - ADMIN_FNAME=${ADMIN_FNAME:-AdminFirst}
+      - ADMIN_LNAME=${ADMIN_LNAME:-AdminLast}
+      - AIPZIP=${AIPZIP:-https://github.com/DSpace-Labs/AIP-Files/raw/master/dogAndReport.zip}
     ports:
       - 8080:8080
     volumes:
       - "assetstore:/dspace/assetstore"
-      - "solr:/dspace/solr"
-      # Uncomment the following to enable Mirage2 (DSpace 5x or 6x only)
-      # - "../../add-ons/mirage2/xmlui.xconf:/dspace/config/xmlui.xconf"
+      - "../../add-ons/dspace-docker-tools:/dspace-docker-tools"
+    entrypoint: /dspace-docker-tools/ingestAIP.sh
     networks:
       - dspacenet
     depends_on:
@@ -35,7 +42,11 @@ services:
 volumes:
   pgdata:
   assetstore:
-  solr:
+  # The Solr volumes will be defined in one of the dX.override.yml files
+  solr_authority:
+  solr_oai:
+  solr_search:
+  solr_statistics:
 
 networks:
   dspacenet:
